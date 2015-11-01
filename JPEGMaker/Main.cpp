@@ -23,13 +23,13 @@ int main()
 		}
 	}
 	*/
-	CImg<unsigned char> img1("hyojoo.jpeg");
-	CImg<unsigned char> img2;
+	CImg<unsigned char> imgOriginal("hyojoo.jpeg");
+	CImg<unsigned char> imgGray;
 
-	img2 = img1.get_RGBtoYCbCr().get_channel(0);
-	CImgDisplay main_disp(img2, "Main Picture");
-	
-	//system("pause");
+	imgGray = imgOriginal.get_RGBtoYCbCr().get_channel(0);
+	imgGray.save("hyojoo_gray.jpeg");
+	CImgDisplay main_disp(imgOriginal, "Main Picture"), sub_disp1(imgGray, "Sub Picture");
+	system("pause");
 	return 0;
 }
 
