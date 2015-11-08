@@ -27,6 +27,8 @@
 #include <fftw3.h>
 
 #include "CImg/CImg.h"
+#include "jpeg/jpeglib.h"
+#include <setjmp.h>
 
 using namespace std;
 using namespace cimg_library;
