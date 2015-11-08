@@ -85,8 +85,7 @@ void write_JPEG_file(char *filename, int quality)
 	//CImg<unsigned char> grayImage = RGBtoGrayScale(image);
 	CImg<unsigned char> grayImage("hyojoo_gray.jpeg");
 
-	CImgDisplay main_disp;
-	
+	/*
 	for(int i = 0; i < grayImage.dimx(); i++){
 		for(int j = 0; j < grayImage.dimy(); j++){
 			for(int k=0; k<3; k++){
@@ -95,6 +94,8 @@ void write_JPEG_file(char *filename, int quality)
 			}
 		}
 	}
+	*/
+	CImgDisplay main_disp(grayImage, "Main display");
 	//fftw example
 	fftw_complex *in, *out;
 	fftw_plan p;
@@ -108,9 +109,7 @@ void write_JPEG_file(char *filename, int quality)
 	fftw_destroy_plan(p);
 	fftw_free(in); fftw_free(out);
 
-	while(!main_disp.is_closed)
-		main_disp.wait();
-
+	cin.get();
 	return 0;
 }
 CImg<unsigned char> RGBtoGrayScale(CImg<unsigned char> original_image)
