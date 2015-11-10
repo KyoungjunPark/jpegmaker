@@ -25,28 +25,27 @@
 
 #include "Main.h"
 
+unsigned char *raw_image = NULL;
+
 int main()
 {
 
-	/* Change Original image to GrayScale image
+	// Change Original image to GrayScale image
 	CImg<unsigned char> imgOriginal("hyojoo.jpeg");
 	CImg<unsigned char> imgGrayScale = RGBtoGrayScale(imgOriginal);
-	*/
-
-	JSAMPLE* image_buffer;
-	//vector<char> image_buffer;
-	//XInfo_t xinfo = getXInfo(":0");
-	//XImage* screen_shot = takeScreenshot(xinfo, buffer);
-
-	int image_height = 1024;
-	int image_width = 819;
-
-	CImg<unsigned char> *image = ReadJpegIntoCImg("hyojoo_gray.jpeg");
-	CImgDisplay main_disp(*image, "Click a point");
-
-	//write_JPEG_file("hyojoo_gray.jpeg", 1, image_buffer, image_height, image_width);
-	system("pause");
 	
+	//JSAMPLE* image_buffer;
+	char *inputFilename = "hyojoo_gray.jpeg";
+	char *outputFilename = "hyojoo_gray_out.jpeg";
+
+
+	int image_height = 819;
+	int image_width = 1024;
+
+	if(read_JPEG_file(inputFilename) > 0){
+		write_JPEG_file(outputFilename, 15, image_height, image_width);
+	}
+	system("pause");
 	return 0;
 }
 CImg<unsigned char> RGBtoGrayScale(CImg<unsigned char> original)
@@ -57,8 +56,51 @@ CImg<unsigned char> RGBtoGrayScale(CImg<unsigned char> original)
 	imgGray.save("hyojoo_gray.jpeg");
 	return imgGray;
 }
-void write_JPEG_file(char *filename, int quality, JSAMPLE* image_buffer
-		, int image_height, int image_width)
+int read_JPEG_file(char *filename)
+{
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+
+	JSAMPROW row_pointer[1];
+
+
+	FILE *inputFile = fopen(filename, "rb");
+	unsigned long location =0;
+	int i =0;
+
+	if(!inputFile){
+		printf("Error opening jpeg file %s\n!", filename);
+		exit(1);
+	}
+	
+	cinfo.err = jpeg_std_error(&jerr);
+
+	jpeg_create_decompress(&cinfo);
+	jpeg_stdio_src(&cinfo, inputFile);
+	jpeg_read_header(&cinfo, TRUE);
+
+	jpeg_start_decompress(&cinfo);
+
+	raw_image = (unsigned char*)malloc(cinfo.output_width*cinfo.output_height
+			*cinfo.num_components);
+	
+	row_pointer[0] = (unsigned char*)malloc(cinfo.output_width*cinfo.num_components);
+	while(cinfo.output_scanline < cinfo.image_height){
+		jpeg_read_scanlines(&cinfo, row_pointer, 1);
+		for(i = 0 ; i < cinfo.image_width*cinfo.num_components; i++){
+			raw_image[location++] = row_pointer[0][i];
+		}
+	}
+
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+	free(row_pointer[0]);
+	fclose(inputFile);
+
+	return 1;
+}
+void write_JPEG_file(char *filename, int quality,
+		int image_height, int image_width)
 {
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -66,6 +108,7 @@ void write_JPEG_file(char *filename, int quality, JSAMPLE* image_buffer
 	FILE *outfile;
 	JSAMPROW row_pointer[1];
 	int row_stride;
+
 
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
@@ -80,16 +123,19 @@ void write_JPEG_file(char *filename, int quality, JSAMPLE* image_buffer
 	cinfo.image_height = image_height;
 	cinfo.input_components = 1;
 	cinfo.in_color_space = JCS_GRAYSCALE;
-
+	//cinfo.input_components = 3;
+	//cinfo.in_color_space = JCS_RGB;
+	
 	jpeg_set_defaults(&cinfo);
+
+	cinfo.num_components = 1;
+	//cinfo.num_components = 3;
 	jpeg_set_quality(&cinfo, quality, TRUE);
 
 	jpeg_start_compress(&cinfo, TRUE);
 	
-	row_stride = image_width*3;
-
 	while(cinfo.next_scanline < cinfo.image_height){
-		row_pointer[0] = &image_buffer[cinfo.next_scanline*row_stride];
+		row_pointer[0] = &raw_image[cinfo.next_scanline*cinfo.image_width*cinfo.input_components];
 		(void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
 	}
 
@@ -98,51 +144,4 @@ void write_JPEG_file(char *filename, int quality, JSAMPLE* image_buffer
 
 	jpeg_destroy_compress(&cinfo);
 
-}
-CImg<unsigned char> *ReadJpegIntoCImg(char *filename)
-{
-	FILE *file;
-	if((file = fopen(filename, "rb")) == NULL){
-		fprintf(stderr, "Can't open %s\n", filename);
-		exit(1);
-	}
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr jerr;
-
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
-
-	jpeg_stdio_src(&cinfo, file);
-	jpeg_read_header(&cinfo, true);
-
-	jpeg_start_decompress(&cinfo);
-
-	int width = cinfo.output_width;
-	int height = cinfo.output_height;
-	int numChannels = cinfo.num_components;
-	unsigned long dataSize = width*height*numChannels;
-
-	unsigned char *data = (unsigned char *)malloc(dataSize);
-	unsigned char* rowptr;
-	while(cinfo.output_scanline < height){
-		rowptr = data + cinfo.output_scanline * width * numChannels;
-		jpeg_read_scanlines(&cinfo, &rowptr, 1);
-	}
-	jpeg_finish_decompress(&cinfo);
-
-	fclose(file);
-
-	CImg<unsigned char> *image = new CImg<unsigned char>(width, height, 1, numChannels);
-	
-	for(int i=0; i < width ; i++){
-		for(int j=0; j < height; j++){
-			for(int k=0; k < numChannels; k++){
-				*image->data(i,j,0,k) = data[j*width*numChannels+ i*numChannels + k];
-			}
-		}
-	}
-
-	free(data);
-
-	return image;
 }

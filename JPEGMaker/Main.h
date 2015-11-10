@@ -39,6 +39,6 @@ using namespace std;
 using namespace cimg_library;
 
 CImg<unsigned char> RGBtoGrayScale(CImg<unsigned char> original_image);
-void write_JPEG_file(char *filename, int quality, JSAMPLE* image_buffer
+void write_JPEG_file(char *filename, int quality
 		, int image_height, int image_width);
-CImg<unsigned char> *ReadJpegIntoCImg(char * filename);
+int read_JPEG_file(char *filename);
