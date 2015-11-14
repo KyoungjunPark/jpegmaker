@@ -23,14 +23,22 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include<stdio.h>
+//#include <iostream>
 //#include <fftw3.h>
+#include <stdio.h>
 
 #include "CImg/CImg.h"
-#include "jpeg/jpeglib.h"
+#ifdef __cplusplus
+extern "C" {
+	#include <jpeglib.h>
+}
+#endif
 #include <setjmp.h>
 
 using namespace std;
 using namespace cimg_library;
 
 CImg<unsigned char> RGBtoGrayScale(CImg<unsigned char> original_image);
+void write_JPEG_file(char *filename, int quality
+		, int image_height, int image_width);
+int read_JPEG_file(char *filename);
