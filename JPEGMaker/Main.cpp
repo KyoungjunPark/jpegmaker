@@ -31,21 +31,20 @@ int main()
 {
 
 	// Change Original image to GrayScale image
-	CImg<unsigned char> imgOriginal("hyojoo.jpeg");
+	CImg<unsigned char> imgOriginal("kyoungJun.jpeg");
 	CImg<unsigned char> imgGrayScale = RGBtoGrayScale(imgOriginal);
 	
 	//JSAMPLE* image_buffer;
-	char *inputFilename = "hyojoo_gray.jpeg";
-	char *outputFilename = "hyojoo_gray_out.jpeg";
+	char inputFilename[256] = "kyoungJun_gray.jpeg";
+	char outputFilename[256] = "kyoungJun_gray_out.jpeg";
 
 
-	int image_height = 819;
-	int image_width = 1024;
+	int image_height = 512;
+	int image_width = 512;
 
 	if(read_JPEG_file(inputFilename) > 0){
 		write_JPEG_file(outputFilename, 15, image_height, image_width);
 	}
-	system("pause");
 	return 0;
 }
 CImg<unsigned char> RGBtoGrayScale(CImg<unsigned char> original)
@@ -53,7 +52,7 @@ CImg<unsigned char> RGBtoGrayScale(CImg<unsigned char> original)
 	CImg<unsigned char> imgGray;
 
 	imgGray = original.get_RGBtoYCbCr().get_channel(0);
-	imgGray.save("hyojoo_gray.jpeg");
+	imgGray.save("kyoungJun_gray.jpeg");
 	return imgGray;
 }
 int read_JPEG_file(char *filename)
@@ -130,10 +129,10 @@ void write_JPEG_file(char *filename, int quality,
 
 	cinfo.num_components = 1;
 	//cinfo.num_components = 3;
-	jpeg_set_quality(&cinfo, quality, TRUE);
+	//jpeg_set_quality(&cinfo, quality, TRUE);
 
 	jpeg_start_compress(&cinfo, TRUE);
-	
+
 	while(cinfo.next_scanline < cinfo.image_height){
 		row_pointer[0] = &raw_image[cinfo.next_scanline*cinfo.image_width*cinfo.input_components];
 		(void) jpeg_write_scanlines(&cinfo, row_pointer, 1);

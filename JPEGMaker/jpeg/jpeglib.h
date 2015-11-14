@@ -47,7 +47,7 @@ extern "C" {
  * if you want to be compatible.
  */
 
-#define DCTSIZE		    8	/* The basic DCT block is 8x8 coefficients */
+#define DCTSIZE		    8 /* The basic DCT block is 8x8 coefficients */
 #define DCTSIZE2	    64	/* DCTSIZE squared; # of elements in a block */
 #define NUM_QUANT_TBLS      4	/* Quantization tables are numbered 0..3 */
 #define NUM_HUFF_TBLS       4	/* Huffman tables are numbered 0..3 */

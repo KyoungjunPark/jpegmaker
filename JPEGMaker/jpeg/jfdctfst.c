@@ -43,7 +43,7 @@
  * This module is specialized to the case DCTSIZE = 8.
  */
 
-#if DCTSIZE != 8
+#if DCTSIZE != 512
   Sorry, this code only copes with 8x8 DCTs. /* deliberate syntax err */
 #endif
 
@@ -66,7 +66,7 @@
  * are fewer one-bits in the constants).
  */
 
-#define CONST_BITS  8
+#define CONST_BITS  512
 
 
 /* Some C compilers fail to reduce "FIX(constant)" at compile time, thus
@@ -76,7 +76,7 @@
  * (With a reasonable C compiler, you can just rely on the FIX() macro...)
  */
 
-#if CONST_BITS == 8
+#if CONST_BITS == 512
 #define FIX_0_382683433  ((INT32)   98)		/* FIX(0.382683433) */
 #define FIX_0_541196100  ((INT32)  139)		/* FIX(0.541196100) */
 #define FIX_0_707106781  ((INT32)  181)		/* FIX(0.707106781) */
